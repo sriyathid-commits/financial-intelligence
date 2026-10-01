@@ -32,6 +32,7 @@ services:
     dockerContext: ./frontend
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        value: https://financial-intelligence-api.onrender.com
-      - key: NEXT_PUBLIC_WS_URL
-        value: wss://financial-intelligence-api.onrender.com/ws/transactions
+        fromService:
+          type: web
+          name: financial-intelligence-api
+          envVarKey: RENDER_EXTERNAL_URL

@@ -6,7 +6,7 @@ type Tx={transaction_id:string;user_id:string;amount:string;currency:string;merc
 type QueryResult={query:string;interpreted_filters:Record<string,string|boolean>;results:Tx[];result_count:number;limitations:string[]};
 type Summary={environment:string;transactions_today:number;successful:number;failed:number;unknown:number;under_reconciliation:number;total_transactions:number};
 const api=process.env.NEXT_PUBLIC_API_URL||"http://localhost:8000";
-const wsUrl=process.env.NEXT_PUBLIC_WS_URL||"ws://localhost:8000/ws/transactions";
+const wsUrl=process.env.NEXT_PUBLIC_WS_URL||`${api.replace(/^http/,"ws")}/ws/transactions`;
 export default function Home(){
  const [summary,setSummary]=useState<Summary|null>(null);const [rows,setRows]=useState<Tx[]>([]);const [live,setLive]=useState(false);const [sim,setSim]=useState(false);const [error,setError]=useState("");const [queryText,setQueryText]=useState("");const [queryResult,setQueryResult]=useState<QueryResult|null>(null);const [tokenInput,setTokenInput]=useState("");const [authVersion,setAuthVersion]=useState(0);
  const refresh=useCallback(async()=>{try{const [s,t]=await Promise.all([apiFetch(`${api}/api/v1/dashboard/summary`),apiFetch(`${api}/api/v1/transactions?limit=40`)]);if(!s.ok||!t.ok)throw new Error("Backend request failed");setSummary(await s.json());setRows(await t.json());setError("")}catch(e){setError(e instanceof Error?e.message:"Backend unavailable")}},[authVersion]);
