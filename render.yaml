@@ -1,0 +1,60 @@
+# Render Blueprint for a synthetic/demo deployment.
+# The free Postgres plan expires after 30 days; upgrade it before retaining data.
+services:
+  - type: web
+    name: financial-intelligence-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /readyz
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: financial-intelligence-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: financial-intelligence-redis
+          property: connectionString
+      - key: CORS_ORIGINS
+        value: https://financial-intelligence-web.onrender.com
+      - key: AUTH_REQUIRED
+        value: "true"
+      - key: API_KEY_ANALYST
+        sync: false
+      - key: API_KEY_OPERATOR
+        sync: false
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "120"
+      - key: SANDBOX_PARTNER_ID
+        value: render-sandbox-partner
+
+  - type: web
+    name: financial-intelligence-web
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://financial-intelligence-api.onrender.com
+      - key: NEXT_PUBLIC_WS_URL
+        value: wss://financial-intelligence-api.onrender.com/ws/transactions
+
+  - type: keyvalue
+    name: financial-intelligence-redis
+    plan: free
+    region: singapore
+    ipAllowList: []
+
+databases:
+  - name: financial-intelligence-db
+    plan: free
+    region: singapore
+    postgresMajorVersion: "16"
+    databaseName: financial_intelligence
+    user: finintel
