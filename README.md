@@ -24,7 +24,7 @@ After pushing this repository to GitHub, use the one-click link below. Render re
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/sriyathid-commits/financial-intelligence)
 
-The Blueprint uses free plans for a demo. Render free PostgreSQL expires after 30 days, and free Key Value does not persist data; upgrade both before keeping important data. This application handles synthetic events only and is not connected to live payment networks.
+The Blueprint uses SQLite and in-process WebSocket delivery to avoid consuming a workspace's free PostgreSQL or Key Value allowance. Render's free web filesystem is ephemeral, so demo transactions can reset when the API restarts or spins down. Use a persistent managed database and Redis-compatible service before retaining important data. This application handles synthetic events only and is not connected to live payment networks.
 
 To run only the backend locally, set `DATABASE_URL` to a SQLite URL as shown above. Redis is optional for one-process WebSocket delivery; when available, the backend publishes and subscribes on `financial.transaction.events` so events can be relayed between backend instances. Simulator controls are `POST /api/v1/simulator/start`, `POST /api/v1/simulator/stop`, and `GET /api/v1/simulator/status`.
 
